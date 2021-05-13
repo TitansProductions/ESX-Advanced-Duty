@@ -1,7 +1,7 @@
 fx_version 'bodacious'
 game 'gta5'
 
-author 'Nosmakos'
+author 'The Owls - Nosmakos'
 description 'ESX Advanced Duty System'
 version '1.0.0'
 
