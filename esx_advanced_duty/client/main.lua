@@ -48,6 +48,10 @@ end)
 Citizen.CreateThread(function ()
   while true do
     Wait(0)
+			
+    while ESX.PlayerData.job == nil do
+	Citizen.Wait(100)
+    end
 
     local coords      = GetEntityCoords(GetPlayerPed(-1))
     local isInMarker  = false
