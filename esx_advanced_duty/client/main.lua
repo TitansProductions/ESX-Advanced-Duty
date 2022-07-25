@@ -1,38 +1,17 @@
 
---- action functions
-local CurrentAction           = nil
-local CurrentActionMsg        = ''
-local CurrentActionData       = {}
+-- Action Functions
+local CurrentAction, LastZone = nil, nil
+local CurrentActionMsg = ''
+local CurrentActionData = {}
 local HasAlreadyEnteredMarker = false
-local LastZone                = nil
 
-ESX                           = nil
-
-Citizen.CreateThread(function()
-	while ESX == nil do
-		TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
-		Citizen.Wait(100)
-	end
-
-	while ESX.GetPlayerData().job == nil do
-		Citizen.Wait(100)
-	end
-
-  ESX.PlayerData = ESX.GetPlayerData()
-end)
-
-
-RegisterNetEvent('esx:playerLoaded')
-AddEventHandler('esx:playerLoaded', function(xPlayer)
-  ESX.PlayerData = xPlayer
-end)
 
 RegisterNetEvent('esx:setJob')
 AddEventHandler('esx:setJob', function(job)
 	ESX.PlayerData.job = job
 end)
 
-----markers
+-- Markers
 AddEventHandler('esx_advanced_duty:hasEnteredMarker', function (zone)
   CurrentActionData, CurrentActionMsg = {}, ''
 	CurrentAction     = nil
@@ -45,21 +24,22 @@ end)
 
 
 -- Enter / Exit marker job events
-Citizen.CreateThread(function ()
+CreateThread(function ()
   while true do
     Wait(0)
 			
     while ESX.PlayerData.job == nil do
-	Citizen.Wait(100)
+	    Wait(100)
     end
 
-    local coords      = GetEntityCoords(GetPlayerPed(-1))
-    local isInMarker  = false
+    local coords = GetEntityCoords(PlayerPedId())
+    local isInMarker = false
     local currentZone = nil
     local sleep = true
 
     for k,v in pairs(Config.Zones) do
-      if(GetDistanceBetweenCoords(coords, v.Pos.x, v.Pos.y, v.Pos.z, true) < 1.5) then
+      local distance = #(coords - v.Pos)
+      if distance <= Config.DrawDistance then
         local jobName = ESX.PlayerData.job.name
 
         if string.match(jobName, "off") then jobName = jobName:gsub("%off", "") end
@@ -80,17 +60,15 @@ Citizen.CreateThread(function ()
       HasAlreadyEnteredMarker = true
       LastZone                = currentZone
       TriggerEvent('esx_advanced_duty:hasEnteredMarker', currentZone)
-      print("2")
     end
 
     if not isInMarker and HasAlreadyEnteredMarker then
       HasAlreadyEnteredMarker = false
-      print("1")
       TriggerEvent('esx_advanced_duty:hasExitedMarker', LastZone)
     end
 
     if sleep then
-      Citizen.Wait(1000)
+      Wait(1000)
     end
   end
 end)
@@ -99,9 +77,9 @@ end)
 
 
 --keycontrols
-Citizen.CreateThread(function ()
+CreateThread(function ()
   while true do
-    Citizen.Wait(5)
+    Wait(5)
     
     if CurrentAction ~= nil then
       ESX.ShowHelpNotification(CurrentActionMsg, true)
@@ -118,11 +96,11 @@ Citizen.CreateThread(function ()
 end)
 
 -- Display markers
-Citizen.CreateThread(function ()
+CreateThread(function ()
   while true do
     Wait(0)
 
-    local coords = GetEntityCoords(GetPlayerPed(-1))
+    local coords = GetEntityCoords(PlayerPedId())
     local sleep = true
 
     for k,v in pairs(Config.Zones) do
@@ -139,7 +117,7 @@ Citizen.CreateThread(function ()
     end
 
     if sleep then
-      Citizen.Wait(1000)
+      Wait(1000)
     end
   end
 end)
