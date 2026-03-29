@@ -80,12 +80,10 @@ Citizen.CreateThread(function ()
       HasAlreadyEnteredMarker = true
       LastZone                = currentZone
       TriggerEvent('esx_advanced_duty:hasEnteredMarker', currentZone)
-      print("2")
     end
 
     if not isInMarker and HasAlreadyEnteredMarker then
       HasAlreadyEnteredMarker = false
-      print("1")
       TriggerEvent('esx_advanced_duty:hasExitedMarker', LastZone)
     end
 
